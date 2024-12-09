@@ -1,0 +1,442 @@
+CREATE TABLE PARKING (
+    ID_Parking CHAR(5),
+    Address NVARCHAR(50) NOT NULL,
+    OpeningHour TIME NOT NULL,
+    CloseHour TIME NOT NULL CHECK (OpeningHour < CloseHour),
+    ParkingType INT NOT NULL CHECK (ParkingType IN (0, 1)),
+    ID_Branch CHAR(5),
+    CONSTRAINT PK_PARKING PRIMARY KEY (ID_Parking)
+);
+
+CREATE TABLE BRANCH (
+    ID_Branch CHAR(5),
+    BranchName NVARCHAR(50) NOT NULL UNIQUE,
+    Address NVARCHAR(50) NOT NULL,
+    PhoneNumber CHAR(10) NOT NULL UNIQUE,
+    OpeningHour TIME NOT NULL,
+    CloseHour TIME NOT NULL CHECK (OpeningHour < CloseHour),
+    ID_Employee CHAR(5),
+    ID_Area CHAR(5),
+    CONSTRAINT PK_BRANCH PRIMARY KEY (ID_Branch)
+);
+
+CREATE TABLE AREA (
+    ID_Area CHAR(5) NOT NULL,
+    AreaName VARCHAR(50) NOT NULL UNIQUE,
+    CONSTRAINT PK_AREA PRIMARY KEY (ID_Area)
+);
+
+CREATE TABLE FOOD_ITEM (
+    ID_Food CHAR(5),
+    FoodName NVARCHAR(50) NOT NULL UNIQUE,
+    Price INT NOT NULL CHECK (Price > 0),
+    IsAreaRestricted INT NOT NULL DEFAULT 0 CHECK (IsAreaRestricted IN (0, 1)),
+    DeliverySafe INT NOT NULL DEFAULT 1 CHECK (DeliverySafe IN (0, 1)),
+    ID_Type CHAR(5),
+    CONSTRAINT PK_FOOD_ITEM PRIMARY KEY (ID_Food)
+);
+
+CREATE TABLE FOOD_TYPE (
+    ID_Type CHAR(5),
+    TypeName NVARCHAR(50) NOT NULL UNIQUE,
+    CONSTRAINT PK_FOOD_TYPE PRIMARY KEY (ID_Type)
+);
+
+CREATE TABLE AREA_SPECIFIC_FOOD (
+    ID_Area CHAR(5) NOT NULL,
+    ID_Food CHAR(5) NOT NULL,
+    CONSTRAINT PK_AREA_SPECIFIC_FOOD PRIMARY KEY (ID_Area, ID_Food)
+);
+
+CREATE TABLE BRANCH_FOOD (
+    ID_BranchFood CHAR(5),
+    Available INT NOT NULL DEFAULT 1 CHECK (Available IN (0, 1)),
+    ID_Branch CHAR(5) NOT NULL,
+    ID_Food CHAR(5) NOT NULL,
+    CONSTRAINT PK_BRANCH_FOOD PRIMARY KEY (ID_BranchFood)
+);
+
+CREATE TABLE [ORDER] (
+    ID_Order CHAR(5),
+    OrderDate DATE NOT NULL DEFAULT CURRENT_DATE,
+    TotalPrice INT,
+    ActualPrice INT,
+    ID_Customer CHAR(5),
+    ID_Table INT,
+    ID_Review CHAR(5),
+    ID_Employee CHAR(5),
+    CONSTRAINT PK_ID_ORDER PRIMARY KEY (ID_Order)
+);
+
+CREATE TABLE ONLINE_ORDER (
+    ID_Online CHAR(5),
+    TimeOrder TIME NOT NULL,
+    CONSTRAINT PK_ONLINE_ORDER PRIMARY KEY (ID_Online)
+);
+
+CREATE TABLE RESERVATION_ORDER (
+    ID_Reservation CHAR(5),
+    ArrivalTime TIME NOT NULL,
+    NumberOfPeople INT NOT NULL CHECK (NumberOfPeople > 0),
+    Notes NVARCHAR(500),
+    CONSTRAINT PK_RESERVATION_ORDER PRIMARY KEY (ID_Reservation)
+);
+
+CREATE TABLE [TABLE] (
+    ID_Table INT NOT NULL,
+    NumberOfSeats INT NOT NULL CHECK (NumberOfSeats > 0),
+    StatusTable INT NOT NULL DEFAULT 0 CHECK (StatusTable IN (0, 1)),
+    ID_Branch CHAR(5),
+    CONSTRAINT PK_TABLE PRIMARY KEY (ID_Table)
+);
+
+CREATE TABLE ORDER_FOOD (
+    ID_BranchFood CHAR(5),
+    ID_Order CHAR(5),
+    Quantity INT NOT NULL CHECK (Quantity > 0),
+    CONSTRAINT PK_ORDER_FOOD PRIMARY KEY (ID_BranchFood, ID_Order)
+);
+
+CREATE TABLE EMP_BRANCH_HISTORY (
+    ID_Employee CHAR(5),
+    ID_Branch CHAR(5),
+    StartDate DATE,
+    EndDate DATE CHECK (EndDate >= StartDate),
+    CONSTRAINT PK_EmpBranchHistory PRIMARY KEY (ID_Employee, ID_Branch, StartDate)
+);
+
+CREATE TABLE EMPLOYEE (
+    ID_Employee CHAR(5),
+    EmployeeName NVARCHAR(50) NOT NULL,
+    DoB DATE NOT NULL,
+    PhoneNumber CHAR(10) NOT NULL UNIQUE,
+    Gender CHAR(1) NOT NULL CHECK (Gender IN ('M', 'F')),
+    ID_Department CHAR(5),
+    CONSTRAINT PK_EMPLOYEE PRIMARY KEY (ID_Employee)
+);
+
+CREATE TABLE EMPLOYEE_LEAVE_BALANCE (
+    ID_Leave CHAR(5),
+    TotalDays INT NOT NULL DEFAULT 12 CHECK (TotalDays >= 0),
+    RemainingDays INT NOT NULL DEFAULT 12 CHECK (RemainingDays >= 0 AND RemainingDays <= TotalDays),
+    ID_Employee CHAR(5),
+    CONSTRAINT PK_EmployeeLeaveBalance PRIMARY KEY (ID_Leave)
+);
+
+CREATE TABLE EMPLOYEE_DAY_OFF (
+    ID_DayOff CHAR(5),
+    Date DATE NOT NULL,
+    ApprovalStatus INT CHECK (ApprovalStatus IN (0, 1)),
+    ID_Employee CHAR(5) NOT NULL,
+    isPaidDayOff INT NOT NULL DEFAULT 0 CHECK (isPaidDayOff IN (0, 1)),
+    Reason NVARCHAR(500),
+    Deduction INT CHECK (Deduction >= 0),
+    CONSTRAINT PK_EmployeeDayOff PRIMARY KEY (ID_DayOff)
+);
+
+CREATE TABLE MEMBERSHIP (
+    ID_Card CHAR(5),
+    Status INT NOT NULL DEFAULT 1 CHECK (Status IN (0, 1)),
+    DateCreated DATE NOT NULL DEFAULT CURRENT_DATE,
+    Point INT NOT NULL DEFAULT 0 CHECK (Point >= 0),
+    ID_Level CHAR(5),
+    ID_Employee CHAR(5)
+    CONSTRAINT PK_Membership PRIMARY KEY (ID_Card)
+);
+
+CREATE TABLE POINT_HISTORY (
+    ID_PointHistory CHAR(5),
+    Point INT NOT NULL CHECK (Point >= 0),
+    Year INT NOT NULL,
+    ID_Customer CHAR(5),
+    CONSTRAINT PK_PointHistory PRIMARY KEY (ID_PointHistory)
+);
+
+CREATE TABLE MEM_LEVEL (
+    ID_Level CHAR(5),
+    LevelName VARCHAR(50) NOT NULL UNIQUE,
+    DiscountPercentages INT NOT NULL CHECK (DiscountPercentages >= 0 AND DiscountPercentages <= 100),
+    CONSTRAINT PK_MemLevel PRIMARY KEY (ID_Level)
+);
+
+CREATE TABLE CUSTOMER (
+    ID_Customer CHAR(5) NOT NULL,
+    CustomerName VARCHAR(50) NOT NULL,
+    PhoneNumber CHAR(10) NOT NULL UNIQUE,
+    Gender CHAR(1) NOT NULL CHECK (Gender IN ('M', 'F')),
+    Email VARCHAR(50) NOT NULL UNIQUE,
+    SSID CHAR(10) NOT NULL UNIQUE,
+    ID_Card CHAR(5)
+    CONSTRAINT PK_Customer PRIMARY KEY (ID_Customer)
+);
+
+CREATE TABLE DEPARTMENT (
+    ID_Department CHAR(5) NOT NULL,
+    DepartmentName VARCHAR(50) NOT NULL,
+    Salary INT NOT NULL CHECK (Salary > 0),
+    ID_Branch CHAR(5),
+    CONSTRAINT PK_Department PRIMARY KEY (ID_Department)
+);
+
+ALTER TABLE PARKING
+ADD 
+    CONSTRAINT FK_PARKING_BRANCH 
+    FOREIGN KEY (ID_Branch) 
+    REFERENCES BRANCH(ID_Branch);
+
+ALTER TABLE BRANCH
+ADD 
+    CONSTRAINT FK_BRANCH_EMPLOYEE 
+    FOREIGN KEY (ID_Employee) 
+    REFERENCES EMPLOYEE(ID_Employee);
+
+ALTER TABLE BRANCH
+ADD 
+    CONSTRAINT FK_BRANCH_AREA 
+    FOREIGN KEY (ID_Area) 
+    REFERENCES AREA(ID_Area);
+
+ALTER TABLE FOOD_ITEM
+ADD 
+    CONSTRAINT FK_FOOD_TYPE 
+    FOREIGN KEY (ID_Type) 
+    REFERENCES FOOD_TYPE(ID_Type);
+
+ALTER TABLE AREA_SPECIFIC_FOOD
+ADD
+    CONSTRAINT FK_AREA_SPECIFIC_FOOD_AREA
+    FOREIGN KEY (ID_Area)
+    REFERENCES AREA(ID_Area);
+
+ALTER TABLE AREA_SPECIFIC_FOOD
+ADD
+    CONSTRAINT FK_AREA_SPECIFIC_FOOD_FOOD
+    FOREIGN KEY (ID_Food)
+    REFERENCES FOOD_ITEM(ID_Food);
+
+ALTER TABLE BRANCH_FOOD
+ADD
+    CONSTRAINT FK_BRANCH_FOOD_BRANCH
+    FOREIGN KEY (ID_Branch)
+    REFERENCES BRANCH(ID_Branch);
+
+ALTER TABLE BRANCH_FOOD
+ADD
+    CONSTRAINT FK_BRANCH_FOOD_FOOD
+    FOREIGN KEY (ID_Food)
+    REFERENCES FOOD_ITEM(ID_Food);
+
+ALTER TABLE [ORDER]
+ADD
+    CONSTRAINT FK_ORDER_CUSTOMER
+    FOREIGN KEY (ID_Customer)
+    REFERENCES CUSTOMER(ID_Customer);
+
+ALTER TABLE [ORDER]
+ADD
+    CONSTRAINT FK_ORDER_REVIEW
+    FOREIGN KEY (ID_Review)
+    REFERENCES REVIEW(ID_Review);
+
+ALTER TABLE [ORDER]
+ADD
+    CONSTRAINT FK_ORDER_EMPLOYEE
+    FOREIGN KEY (ID_Employee)
+    REFERENCES EMPLOYEE(ID_Employee);
+
+ALTER TABLE [ORDER]
+ADD
+    CONSTRAINT FK_ORDER_TABLE
+    FOREIGN KEY (ID_Table)
+    REFERENCES [TABLE](ID_Table);
+
+ALTER TABLE ONLINE_ORDER
+ADD
+    CONSTRAINT FK_ONLINE_ORDER_ORDER
+    FOREIGN KEY (ID_Online)
+    REFERENCES [ORDER](ID_Order);
+
+ALTER TABLE RESERVATION_ORDER
+ADD
+    CONSTRAINT FK_RESERVATION_ORDER_ORDER
+    FOREIGN KEY (ID_Reservation)
+    REFERENCES [ORDER](ID_Order);
+
+ALTER TABLE [TABLE]
+ADD
+    CONSTRAINT FK_TABLE_BRANCH
+    FOREIGN KEY (ID_Branch)
+    REFERENCES BRANCH(ID_Branch);
+
+ALTER TABLE ORDER_FOOD
+ADD
+    CONSTRAINT FK_ORDER_FOOD_BRANCH_FOOD
+    FOREIGN KEY (ID_BranchFood)
+    REFERENCES BRANCH_FOOD(ID_BranchFood);
+
+ALTER TABLE ORDER_FOOD
+ADD
+    CONSTRAINT FK_ORDER_FOOD_ORDER
+    FOREIGN KEY (ID_Order)
+    REFERENCES [ORDER](ID_Order);
+
+ALTER TABLE EMP_BRANCH_HISTORY
+ADD
+    CONSTRAINT FK_EMP_BRANCH_HISTORY_EMPLOYEE
+    FOREIGN KEY (ID_Employee)
+    REFERENCES EMPLOYEE(ID_Employee);
+
+ALTER TABLE EMP_BRANCH_HISTORY
+ADD
+    CONSTRAINT FK_EMP_BRANCH_HISTORY_BRANCH
+    FOREIGN KEY (ID_Branch)
+    REFERENCES BRANCH(ID_Branch);
+
+ALTER TABLE EMPLOYEE
+ADD
+    CONSTRAINT FK_EMPLOYEE_DEPARTMENT
+    FOREIGN KEY (ID_Department)
+    REFERENCES DEPARTMENT(ID_Department);
+
+ALTER TABLE EMPLOYEE_LEAVE_BALANCE
+ADD
+    CONSTRAINT FK_EMPLOYEE_LEAVE_BALANCE_EMPLOYEE
+    FOREIGN KEY (ID_Employee)
+    REFERENCES EMPLOYEE(ID_Employee);
+
+ALTER TABLE EMPLOYEE_DAY_OFF
+ADD
+    CONSTRAINT FK_EMPLOYEE_DAY_OFF_EMPLOYEE
+    FOREIGN KEY (ID_Employee)
+    REFERENCES EMPLOYEE(ID_Employee);
+
+ALTER TABLE MEMBERSHIP
+ADD
+    CONSTRAINT FK_MEMBERSHIP_LEVEL
+    FOREIGN KEY (ID_Level)
+    REFERENCES MEM_LEVEL(ID_Level);
+
+ALTER TABLE MEMBERSHIP 
+ADD
+    CONSTRAINT FK_MEMBERSHIP_EMPLOYEE
+    FOREIGN KEY (ID_Employee)
+    REFERENCES EMPLOYEE(ID_Employee);
+
+ALTER TABLE POINT_HISTORY
+ADD
+    CONSTRAINT FK_POINT_HISTORY_MEMBERSHIP
+    FOREIGN KEY (ID_Customer)
+    REFERENCES CUSTOMER(ID_Customer);
+
+ALTER TABLE DEPARTMENT
+ADD
+    CONSTRAINT FK_DEPARTMENT_BRANCH
+    FOREIGN KEY (ID_Branch)
+    REFERENCES BRANCH(ID_Branch);
+
+ALTER TABLE CUSTOMER
+ADD
+    CONSTRAINT FK_CUSTOMER_MEMBERSHIP
+    FOREIGN KEY (ID_Card)
+    REFERENCES MEMBERSHIP(ID_Card);
+
+CREATE TRIGGER trg_UpdateLeaveBalance
+ON EMPLOYEE_DAY_OFF
+AFTER INSERT
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM inserted WHERE isPaidDayOff = 1)
+    BEGIN
+        UPDATE EMPLOYEE_LEAVE_BALANCE
+        SET RemainingDays = RemainingDays - 1
+        FROM EMPLOYEE_LEAVE_BALANCE E
+        JOIN inserted I ON E.ID_Employee = i.ID_Employee
+        WHERE I.isPaidDayOff = 1;
+    END
+END;
+GO
+
+CREATE TRIGGER trg_PreventPaidDayOff
+ON EMPLOYEE_DAY_OFF
+INSTEAD OF INSERT
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM inserted I
+        JOIN EMPLOYEE_LEAVE_BALANCE E
+        ON I.ID_Employee = E.ID_Employee
+        WHERE I.isPaidDayOff = 1 AND E.RemainingDays = 0
+    )
+    BEGIN
+        RAISERROR ('Employee cannot take a paid day off as remaining leave balance is zero', 16, 1);
+        RETURN;
+    END
+    INSERT INTO EMPLOYEE_DAY_OFF (ID_DayOff, Date, ApprovalStatus, ID_Employee, isPaidDayOff, Reason, Deduction)
+    SELECT ID_DayOff, Date, ApprovalStatus, ID_Employee, isPaidDayOff, Reason, Deduction
+    FROM inserted;
+END;
+GO
+
+CREATE TRIGGER trg_CheckBranchFood
+ON BRANCH_FOOD
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM inserted I
+        JOIN FOOD_ITEM F ON I.ID_Food = F.ID_Food
+        JOIN BRANCH B ON I.ID_Branch = B.ID_Branch
+        WHERE F.IsAreaRestricted = 1 AND B.ID_Area NOT IN (
+            SELECT ID_Area
+            FROM AREA_SPECIFIC_FOOD
+            WHERE ID_Food = I.ID_Food
+        )
+    )
+    BEGIN
+        RAISERROR ('This food is restricted in this area', 16, 1);
+        ROLLBACK TRANSACTION;
+    END
+END;
+GO
+
+CREATE TRIGGER trg_CheckFoodAvailability
+ON ORDER_FOOD
+AFTER INSERT
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM inserted I
+        JOIN BRANCH_FOOD BF ON I.ID_BranchFood = BF.ID_BranchFood
+        WHERE BF.Available = 0
+    )
+    BEGIN
+        RAISERROR ('The food item ordered is not currently available', 16, 1);
+        ROLLBACK TRANSACTION;
+    END
+END;
+GO
+
+CREATE PROCEDURE sp_UpdateLostCard
+    @ID_Customer CHAR(5),
+    @NewCard CHAR(5)
+AS
+BEGIN
+    DECLARE @OldCard CHAR(5), @Level CHAR(5), @Point INT, @Employee CHAR(5);
+    SELECT @OldCard = ID_Card, @Level = ID_Level, @Point = Point, @Employee = ID_Employee
+    FROM CUSTOMER
+    WHERE ID_Customer = @ID_Customer;
+
+    DELETE FROM MEMBERSHIP
+    WHERE ID_Card = @OldCard;
+
+    INSERT INTO MEMBERSHIP (ID_Card, Status, DateCreated, Point, ID_Level, ID_Employee)
+    VALUES (@NewCard, 1, GETDATE(), @Point, @Level, @Employee);
+
+    UPDATE CUSTOMER
+    SET ID_Card = @NewCard
+    WHERE ID_Customer = @ID_Customer;
+END
+GO

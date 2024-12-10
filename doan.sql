@@ -2,10 +2,11 @@ CREATE TABLE PARKING (
     ID_Parking CHAR(5),
     Address NVARCHAR(50) NOT NULL,
     OpeningHour TIME NOT NULL,
-    CloseHour TIME NOT NULL CHECK (OpeningHour < CloseHour),
+    CloseHour TIME NOT NULL,
     ParkingType INT NOT NULL CHECK (ParkingType IN (0, 1)),
     ID_Branch CHAR(5),
-    CONSTRAINT PK_PARKING PRIMARY KEY (ID_Parking)
+    CONSTRAINT PK_PARKING PRIMARY KEY (ID_Parking),
+	CONSTRAINT CHK_Parking_Opening_Closing_Hours CHECK (OpeningHour < CloseHour)
 );
 
 CREATE TABLE BRANCH (
@@ -14,10 +15,11 @@ CREATE TABLE BRANCH (
     Address NVARCHAR(50) NOT NULL,
     PhoneNumber CHAR(10) NOT NULL UNIQUE,
     OpeningHour TIME NOT NULL,
-    CloseHour TIME NOT NULL CHECK (OpeningHour < CloseHour),
+    CloseHour TIME NOT NULL,
     ID_Employee CHAR(5),
     ID_Area CHAR(5),
-    CONSTRAINT PK_BRANCH PRIMARY KEY (ID_Branch)
+    CONSTRAINT PK_BRANCH PRIMARY KEY (ID_Branch),
+    CONSTRAINT CHK_Branch_Opening_Closing_Hours CHECK (OpeningHour < CloseHour)
 );
 
 CREATE TABLE AREA (
@@ -111,10 +113,12 @@ CREATE TABLE ORDER_FOOD (
 CREATE TABLE EMP_BRANCH_HISTORY (
     ID_Employee CHAR(5),
     ID_Branch CHAR(5),
-    StartDate DATE,
-    EndDate DATE CHECK (EndDate >= StartDate),
-    CONSTRAINT PK_EmpBranchHistory PRIMARY KEY (ID_Employee, ID_Branch, StartDate)
+    StartDate DATE NOT NULL,
+    EndDate DATE,
+    CONSTRAINT PK_EmpBranchHistory PRIMARY KEY (ID_Employee, ID_Branch, StartDate),
+    CONSTRAINT CHK_EndDate_After_StartDate CHECK (EndDate IS NULL OR EndDate >= StartDate)
 );
+
 
 CREATE TABLE EMPLOYEE (
     ID_Employee CHAR(5),
@@ -129,9 +133,10 @@ CREATE TABLE EMPLOYEE (
 CREATE TABLE EMPLOYEE_LEAVE_BALANCE (
     ID_Leave CHAR(5),
     TotalDays INT NOT NULL DEFAULT 12 CHECK (TotalDays >= 0),
-    RemainingDays INT NOT NULL DEFAULT 12 CHECK (RemainingDays >= 0 AND RemainingDays <= TotalDays),
+    RemainingDays INT NOT NULL DEFAULT 12 CHECK (RemainingDays >= 0),
     ID_Employee CHAR(5),
-    CONSTRAINT PK_EmployeeLeaveBalance PRIMARY KEY (ID_Leave)
+    CONSTRAINT PK_EmployeeLeaveBalance PRIMARY KEY (ID_Leave),
+    CONSTRAINT CHK_Remaining_Total_Days CHECK (RemainingDays <= TotalDays)
 );
 
 CREATE TABLE EMPLOYEE_DAY_OFF (
@@ -283,7 +288,7 @@ ALTER TABLE [TABLE]
 ADD
     CONSTRAINT FK_TABLE_BRANCH
     FOREIGN KEY (ID_Branch)
-    REFERENCES BRANCH(ID_Branch) ON DELETE CASCADE;
+    REFERENCES BRANCH(ID_Branch);
 
 ALTER TABLE ORDER_FOOD
 ADD
@@ -356,6 +361,16 @@ ADD
     CONSTRAINT FK_CUSTOMER_MEMBERSHIP
     FOREIGN KEY (ID_Card)
     REFERENCES MEMBERSHIP(ID_Card) ON DELETE SET NULL;
+GO
+
+CREATE TRIGGER trg_DeleteCascadeTable
+ON Branch
+AFTER DELETE
+AS
+BEGIN
+    DELETE FROM [TABLE] WHERE ID_Branch IN (SELECT ID_Branch FROM deleted);
+END;
+GO
 
 CREATE TRIGGER trg_UpdateLeaveBalance
 ON EMPLOYEE_DAY_OFF
@@ -418,6 +433,25 @@ BEGIN
 END;
 GO
 
+CREATE TRIGGER trg_CheckEmployeeHandlingOrder
+ON [ORDER]
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM inserted I
+        JOIN DEPARTMENT D ON I.ID_Branch = D.ID_Branch
+        JOIN EMPLOYEE E ON I.ID_Employee = E.ID_Employee
+        WHERE E.ID_Department != D.ID_Department
+    )
+    BEGIN
+        RAISERROR ('Employee is not working at the branch at the time of order', 16, 1);
+        ROLLBACK TRANSACTION;
+    END
+END;
+GO
+
 CREATE TRIGGER trg_CheckFoodAvailability
 ON ORDER_FOOD
 AFTER INSERT
@@ -442,9 +476,9 @@ CREATE PROCEDURE sp_UpdateLostCard
 AS
 BEGIN
     DECLARE @OldCard CHAR(5), @Level CHAR(5), @Point INT, @Employee CHAR(5);
-    SELECT @OldCard = ID_Card, @Level = ID_Level, @Point = Point, @Employee = ID_Employee
-    FROM CUSTOMER
-    WHERE ID_Customer = @ID_Customer;
+    SELECT @OldCard = M.ID_Card, @Level = M.ID_Level, @Point = M.Point, @Employee = M.ID_Employee
+    FROM CUSTOMER C, MEMBERSHIP M
+    WHERE C.ID_Customer = @ID_Customer AND C.ID_Card = M.ID_Card
 
     DELETE FROM MEMBERSHIP
     WHERE ID_Card = @OldCard;

@@ -69,6 +69,16 @@ CREATE TABLE [ORDER] (
     CONSTRAINT PK_ID_ORDER PRIMARY KEY (ID_Order)
 );
 
+CREATE TABLE REVIEW (
+    ID_Review CHAR(5),
+    ServiceScore INT NOT NULL CHECK (ServiceScore >= 0 AND ServiceScore <= 5),
+    FoodScore INT NOT NULL CHECK (FoodScore >= 0 AND FoodScore <= 5),
+    BranchScore INT NOT NULL CHECK (BranchScore >= 0 AND BranchScore <= 5),
+    PriceScore INT NOT NULL CHECK (PriceScore >= 0 AND PriceScore <= 5),
+    Comment NVARCHAR(500),
+    CONSTRAINT PK_REVIEW PRIMARY KEY (ID_Review)
+);
+
 CREATE TABLE ONLINE_ORDER (
     ID_Online CHAR(5),
     TimeOrder TIME NOT NULL,

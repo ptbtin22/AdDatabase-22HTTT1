@@ -385,3 +385,9 @@ VALUES
 ('O019', '13:30', 4, 'Relaxing lunch'),
 ('O020', '21:00', 6, 'Night celebration');
 
+INSERT INTO MEM_LEVEL (ID_Level, LevelName, DiscountPercentages)
+VALUES
+('L001', 'Gold', 10),
+('L002', 'Silver', 8),
+('L003', 'Bronze', 5);
+

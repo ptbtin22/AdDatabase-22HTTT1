@@ -6,13 +6,13 @@ VALUES
 ('A003', 'Riverside');
 
 -- Insert to DEPARTMENT
-INSERT INTO DEPARTMENT (ID_Department, DepartmentName, Salary, ID_Branch)
+INSERT INTO DEPARTMENT (ID_Department, DepartmentName, Salary)
 VALUES
-('D001', 'Server', 7000000, 'B001'),
-('D002', 'Cooker', 8000000, 'B001'),
-('D003', 'Security', 6000000, 'B002'),
-('D004', 'Cleaner', 5000000, 'B003'),
-('D005', 'Manager', 12000000, 'B001');
+('D001', 'Server', 7000000),
+('D002', 'Cooker', 8000000),
+('D003', 'Security', 6000000),
+('D004', 'Cleaner', 5000000),
+('D005', 'Manager', 12000000);
 
 
 -- Insert to EMPLOYEE
@@ -257,23 +257,22 @@ VALUES
 ('L003', 'Bronze', 5);
 
 -- Inserting 15 membership records with ID_Card from ID001 to ID015 and ID_Level set to L001, L002, and L003
-INSERT INTO MEMBERSHIP (ID_Card, Status, DateCreated, Point, ID_Level, ID_Employee)
+INSERT INTO MEMBERSHIP (ID_Card, Status, DateCreated, Point, ID_Level)
 VALUES
-('ID001', 1, GETDATE(), 0, 'L001', 'E001'),
-('ID002', 1, GETDATE(), 0, 'L002', 'E002'),
-('ID003', 1, GETDATE(), 0, 'L003', 'E003'),
-('ID004', 1, GETDATE(), 0, 'L001', 'E004'),
-('ID005', 1, GETDATE(), 0, 'L002', 'E005'),
-('ID006', 1, GETDATE(), 0, 'L003', 'E006'),
-('ID007', 1, GETDATE(), 0, 'L001', 'E007'),
-('ID008', 1, GETDATE(), 0, 'L002', 'E008'),
-('ID009', 1, GETDATE(), 0, 'L003', 'E009'),
-('ID010', 1, GETDATE(), 0, 'L001', 'E010'),
-('ID011', 1, GETDATE(), 0, 'L002', 'E011'),
-('ID012', 1, GETDATE(), 0, 'L003', 'E012'),
-('ID013', 1, GETDATE(), 0, 'L001', 'E013'),
-('ID014', 1, GETDATE(), 0, 'L002', 'E014'),
-('ID015', 1, GETDATE(), 0, 'L003', 'E015');
+('ID001', 1, GETDATE(), 0, 'L001'),
+('ID002', 1, GETDATE(), 0, 'L002'),
+('ID004', 1, GETDATE(), 0, 'L001'),
+('ID005', 1, GETDATE(), 0, 'L002'),
+('ID006', 1, GETDATE(), 0, 'L003'),
+('ID007', 1, GETDATE(), 0, 'L001'),
+('ID008', 1, GETDATE(), 0, 'L002'),
+('ID009', 1, GETDATE(), 0, 'L003'),
+('ID010', 1, GETDATE(), 0, 'L001'),
+('ID011', 1, GETDATE(), 0, 'L002'),
+('ID012', 1, GETDATE(), 0, 'L003'),
+('ID013', 1, GETDATE(), 0, 'L001'),
+('ID014', 1, GETDATE(), 0, 'L002'),
+('ID015', 1, GETDATE(), 0, 'L003');
 
 
 -- Insert to CUSTOMER
@@ -528,5 +527,6 @@ VALUES
 ('E018', 'B003', '2023-03-01', '2024-03-01'),
 ('E019', 'B004', '2023-07-01', '2024-07-01'),
 ('E020', 'B005', '2023-01-01', NULL);
+
 
 

@@ -1,78 +1,90 @@
+USE master;
+GO
+
+-- Create the database
+CREATE DATABASE DOANCSDLNC;
+GO
+
+-- Switch to the new database
+USE DOANCSDLNC;
+GO
+
 CREATE TABLE PARKING (
-    ID_Parking CHAR(5),
+    ID_Parking INT,
     Address NVARCHAR(50) NOT NULL,
     OpeningHour TIME NOT NULL,
     CloseHour TIME NOT NULL,
     ParkingType INT NOT NULL CHECK (ParkingType IN (0, 1)),
-    ID_Branch CHAR(5),
+    ID_Branch INT,
     CONSTRAINT PK_PARKING PRIMARY KEY (ID_Parking),
 	CONSTRAINT CHK_Parking_Opening_Closing_Hours CHECK (OpeningHour < CloseHour)
 );
 
 CREATE TABLE BRANCH (
-    ID_Branch CHAR(5),
+    ID_Branch INT,
     BranchName NVARCHAR(50) NOT NULL UNIQUE,
     Address NVARCHAR(50) NOT NULL,
     PhoneNumber CHAR(10) NOT NULL UNIQUE,
     OpeningHour TIME NOT NULL,
     CloseHour TIME NOT NULL,
-    ID_Employee CHAR(5),
-    ID_Area CHAR(5),
+    ID_Employee INT,
+    ID_Area INT,
     CONSTRAINT PK_BRANCH PRIMARY KEY (ID_Branch),
     CONSTRAINT CHK_Branch_Opening_Closing_Hours CHECK (OpeningHour < CloseHour)
 );
 
 CREATE TABLE AREA (
-    ID_Area CHAR(5) NOT NULL,
+    ID_Area INT NOT NULL,
     AreaName VARCHAR(50) NOT NULL UNIQUE,
     CONSTRAINT PK_AREA PRIMARY KEY (ID_Area)
 );
 
 CREATE TABLE FOOD_ITEM (
-    ID_Food CHAR(5),
+    ID_Food INT,
     FoodName NVARCHAR(50) NOT NULL UNIQUE,
     Price INT NOT NULL CHECK (Price > 0),
     IsAreaRestricted INT NOT NULL DEFAULT 0 CHECK (IsAreaRestricted IN (0, 1)),
     DeliverySafe INT NOT NULL DEFAULT 1 CHECK (DeliverySafe IN (0, 1)),
-    ID_Type CHAR(5),
+    ID_Type INT,
     CONSTRAINT PK_FOOD_ITEM PRIMARY KEY (ID_Food)
 );
 
 CREATE TABLE FOOD_TYPE (
-    ID_Type CHAR(5),
+    ID_Type INT,
     TypeName NVARCHAR(50) NOT NULL UNIQUE,
     CONSTRAINT PK_FOOD_TYPE PRIMARY KEY (ID_Type)
 );
 
 CREATE TABLE AREA_SPECIFIC_FOOD (
-    ID_Area CHAR(5) NOT NULL,
-    ID_Food CHAR(5) NOT NULL,
+    ID_Area INT NOT NULL,
+    ID_Food INT NOT NULL,
     CONSTRAINT PK_AREA_SPECIFIC_FOOD PRIMARY KEY (ID_Area, ID_Food)
 );
 
 CREATE TABLE BRANCH_FOOD (
-    ID_BranchFood CHAR(5),
+    ID_BranchFood INT,
     Available INT NOT NULL DEFAULT 1 CHECK (Available IN (0, 1)),
-    ID_Branch CHAR(5) NOT NULL,
-    ID_Food CHAR(5) NOT NULL,
+    ID_Branch INT NOT NULL,
+    ID_Food INT NOT NULL,
     CONSTRAINT PK_BRANCH_FOOD PRIMARY KEY (ID_BranchFood)
+    CONSTRAINT UNQ_BRANCH_FOOD UNIQUE (ID_Branch, ID_Food)
 );
 
 CREATE TABLE [ORDER] (
-    ID_Order CHAR(5),
+    ID_Order INT,
     OrderDate DATE NOT NULL DEFAULT GETDATE(),
     TotalPrice INT,
     ActualPrice INT,
-    ID_Customer CHAR(5),
+    ID_Customer INT,
     ID_Table INT,
-    ID_Review CHAR(5),
-    ID_Employee CHAR(5),
-    ID_Branch CHAR(5),
+    ID_Review INT,
+    ID_Employee INT,
+    ID_Branch INT,
     CONSTRAINT PK_ID_ORDER PRIMARY KEY (ID_Order)
 );
 
 CREATE TABLE REVIEW (
-    ID_Review CHAR(5),
+    ID_Review INT,
     ServiceScore INT NOT NULL CHECK (ServiceScore >= 0 AND ServiceScore <= 5),
     FoodScore INT NOT NULL CHECK (FoodScore >= 0 AND FoodScore <= 5),
     BranchScore INT NOT NULL CHECK (BranchScore >= 0 AND BranchScore <= 5),
@@ -82,13 +94,13 @@ CREATE TABLE REVIEW (
 );
 
 CREATE TABLE ONLINE_ORDER (
-    ID_Online CHAR(5),
+    ID_Online INT,
     TimeOrder TIME NOT NULL,
     CONSTRAINT PK_ONLINE_ORDER PRIMARY KEY (ID_Online)
 );
 
 CREATE TABLE RESERVATION_ORDER (
-    ID_Reservation CHAR(5),
+    ID_Reservation INT,
     ArrivalTime TIME NOT NULL,
     NumberOfPeople INT NOT NULL CHECK (NumberOfPeople > 0),
     Notes NVARCHAR(500),
@@ -99,20 +111,20 @@ CREATE TABLE [TABLE] (
     ID_Table INT,
     NumberOfSeats INT NOT NULL CHECK (NumberOfSeats > 0),
     StatusTable INT NOT NULL DEFAULT 0 CHECK (StatusTable IN (0, 1)),
-    ID_Branch CHAR(5),
+    ID_Branch INT,
     CONSTRAINT PK_TABLE PRIMARY KEY (ID_Table)
 );
 
 CREATE TABLE ORDER_FOOD (
-    ID_BranchFood CHAR(5),
-    ID_Order CHAR(5),
+    ID_BranchFood INT,
+    ID_Order INT,
     Quantity INT NOT NULL CHECK (Quantity > 0),
     CONSTRAINT PK_ORDER_FOOD PRIMARY KEY (ID_BranchFood, ID_Order)
 );
 
 CREATE TABLE EMP_BRANCH_HISTORY (
-    ID_Employee CHAR(5),
-    ID_Branch CHAR(5),
+    ID_Employee INT,
+    ID_Branch INT,
     StartDate DATE NOT NULL,
     EndDate DATE,
     CONSTRAINT PK_EmpBranchHistory PRIMARY KEY (ID_Employee, ID_Branch, StartDate),
@@ -121,28 +133,28 @@ CREATE TABLE EMP_BRANCH_HISTORY (
 
 
 CREATE TABLE EMPLOYEE (
-    ID_Employee CHAR(5),
+    ID_Employee INT,
     EmployeeName NVARCHAR(50) NOT NULL,
     DoB DATE NOT NULL,
     PhoneNumber CHAR(10) NOT NULL UNIQUE,
     Gender CHAR(1) NOT NULL CHECK (Gender IN ('M', 'F')),
-    ID_Department CHAR(5),
+    ID_Department INT,
     CONSTRAINT PK_EMPLOYEE PRIMARY KEY (ID_Employee)
 );
 
 CREATE TABLE EMPLOYEE_LEAVE_BALANCE (
     TotalDays INT NOT NULL DEFAULT 12 CHECK (TotalDays >= 0),
     RemainingDays INT NOT NULL DEFAULT 12 CHECK (RemainingDays >= 0),
-    ID_Employee CHAR(5),
+    ID_Employee INT,
     CONSTRAINT PK_EmployeeLeaveBalance PRIMARY KEY (ID_Employee),
     CONSTRAINT CHK_Remaining_Total_Days CHECK (RemainingDays <= TotalDays)
 );
 
 CREATE TABLE EMPLOYEE_DAY_OFF (
-    ID_DayOff CHAR(5),
+    ID_DayOff INT,
     Date DATE NOT NULL,
     ApprovalStatus INT CHECK (ApprovalStatus IN (0, 1)),
-    ID_Employee CHAR(5) NOT NULL,
+    ID_Employee INT NOT NULL,
     isPaidDayOff INT NOT NULL DEFAULT 0 CHECK (isPaidDayOff IN (0, 1)),
     Reason NVARCHAR(500),
     Deduction INT CHECK (Deduction >= 0),
@@ -150,43 +162,43 @@ CREATE TABLE EMPLOYEE_DAY_OFF (
 );
 
 CREATE TABLE MEMBERSHIP (
-    ID_Card CHAR(5),
+    ID_Card INT,
     Status INT NOT NULL DEFAULT 1 CHECK (Status IN (0, 1)),
     DateCreated DATE NOT NULL DEFAULT GETDATE(),
     Point INT NOT NULL DEFAULT 0 CHECK (Point >= 0),
-    ID_Level CHAR(5),
-    ID_Employee CHAR(5),
+    ID_Level INT,
+    ID_Employee INT,
     CONSTRAINT PK_Membership PRIMARY KEY (ID_Card)
 );
 
 CREATE TABLE POINT_HISTORY (
-    ID_PointHistory CHAR(5),
+    ID_PointHistory INT,
     Point INT NOT NULL CHECK (Point >= 0),
     Year INT NOT NULL,
-    ID_Customer CHAR(5),
+    ID_Customer INT,
     CONSTRAINT PK_PointHistory PRIMARY KEY (ID_PointHistory)
 );
 
 CREATE TABLE MEM_LEVEL (
-    ID_Level CHAR(5),
+    ID_Level INT,
     LevelName VARCHAR(50) NOT NULL UNIQUE,
     DiscountPercentages INT NOT NULL CHECK (DiscountPercentages >= 0 AND DiscountPercentages <= 100),
     CONSTRAINT PK_MemLevel PRIMARY KEY (ID_Level)
 );
 
 CREATE TABLE CUSTOMER (
-    ID_Customer CHAR(5) NOT NULL,
+    ID_Customer INT NOT NULL,
     CustomerName VARCHAR(50) NOT NULL,
     PhoneNumber CHAR(10) NOT NULL UNIQUE,
     Gender CHAR(1) NOT NULL CHECK (Gender IN ('M', 'F')),
     Email VARCHAR(50) NOT NULL UNIQUE,
     SSID CHAR(10) NOT NULL UNIQUE,
-    ID_Card CHAR(5)
+    ID_Card INT
     CONSTRAINT PK_Customer PRIMARY KEY (ID_Customer)
 );
 
 CREATE TABLE DEPARTMENT (
-    ID_Department CHAR(5) NOT NULL,
+    ID_Department INT NOT NULL,
     DepartmentName VARCHAR(50) NOT NULL,
     Salary INT NOT NULL CHECK (Salary > 0),
     CONSTRAINT PK_Department PRIMARY KEY (ID_Department)
@@ -433,9 +445,13 @@ BEGIN
     IF EXISTS (
         SELECT 1
         FROM inserted I
-        JOIN DEPARTMENT D ON I.ID_Branch = D.ID_Branch
-        JOIN EMPLOYEE E ON I.ID_Employee = E.ID_Employee
-        WHERE E.ID_Department != D.ID_Department
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM EMP_BRANCH_HISTORY EB
+            WHERE EB.ID_Employee = I.ID_Employee
+              AND I.ID_Branch = EB.ID_Branch
+              AND EB.EndDate IS NULL
+        )
     )
     BEGIN
         RAISERROR ('Employee is not working at the branch at the time of order', 16, 1);
@@ -443,6 +459,7 @@ BEGIN
     END
 END;
 GO
+
 
 CREATE TRIGGER trg_CheckFoodAvailability
 ON ORDER_FOOD
@@ -463,11 +480,11 @@ END;
 GO
 
 CREATE PROCEDURE sp_UpdateLostCard
-    @ID_Customer CHAR(5),
-    @NewCard CHAR(5)
+    @ID_Customer INT,
+    @NewCard INT
 AS
 BEGIN
-    DECLARE @OldCard CHAR(5), @Level CHAR(5), @Point INT, @Employee CHAR(5);
+    DECLARE @OldCard INT, @Level INT, @Point INT, @Employee INT;
     SELECT @OldCard = M.ID_Card, @Level = M.ID_Level, @Point = M.Point, @Employee = M.ID_Employee
     FROM CUSTOMER C, MEMBERSHIP M
     WHERE C.ID_Customer = @ID_Customer AND C.ID_Card = M.ID_Card

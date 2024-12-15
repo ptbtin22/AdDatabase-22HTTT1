@@ -66,7 +66,7 @@ CREATE TABLE BRANCH_FOOD (
     Available INT NOT NULL DEFAULT 1 CHECK (Available IN (0, 1)),
     ID_Branch INT NOT NULL,
     ID_Food INT NOT NULL,
-    CONSTRAINT PK_BRANCH_FOOD PRIMARY KEY (ID_BranchFood)
+    CONSTRAINT PK_BRANCH_FOOD PRIMARY KEY (ID_BranchFood),
     CONSTRAINT UNQ_BRANCH_FOOD UNIQUE (ID_Branch, ID_Food)
 );
 
@@ -76,7 +76,6 @@ CREATE TABLE [ORDER] (
     TotalPrice INT,
     ActualPrice INT,
     ID_Customer INT,
-    ID_Table INT,
     ID_Review INT,
     ID_Employee INT,
     ID_Branch INT,
@@ -101,6 +100,7 @@ CREATE TABLE ONLINE_ORDER (
 
 CREATE TABLE RESERVATION_ORDER (
     ID_Reservation INT,
+    ID_Table INT,
     ArrivalTime TIME NOT NULL,
     NumberOfPeople INT NOT NULL CHECK (NumberOfPeople > 0),
     Notes NVARCHAR(500),

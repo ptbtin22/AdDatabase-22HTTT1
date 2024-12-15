@@ -1,4 +1,3 @@
-# order - AE ĐỂ ID_CUSTOMER NULL NHA, LẤY branch_table_listt, để orderDate vào năm 2022, 2023, để totalPrice với actualPrice = 0 hết nha
 # order-food - AE viết cái procedure thêm món đã - rồi gọi nó ở đây cho nó cập nhật cái order ở trên nha
 # online_order - AE ĐỂ num-records ít thôi nha
 # reservation_order - AE ĐỂ num-records ít thôi nha
